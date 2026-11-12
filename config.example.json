@@ -1,0 +1,10 @@
+{
+  "httpAddr": ":8080",
+  "tcpAddr": ":8700",
+  "keyPath": "/data/adbkey",
+  "keyName": "android-tv-relay",
+  "tvs": [
+    { "name": "committee", "addr": "192.168.1.50:5555" },
+    { "name": "lobby",     "addr": "192.168.1.51:5555" }
+  ]
+}

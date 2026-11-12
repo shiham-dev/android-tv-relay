@@ -1,0 +1,25 @@
+# Binaries
+/android-tv-relay
+/android-tv-relay.exe
+/dist/
+/bin/
+
+# ADB keys — never commit private keys
+adbkey
+adbkey.pub
+*.adbkey
+/data/
+
+# Local config with real addresses
+config.json
+config.local.json
+
+# Go
+*.test
+*.out
+coverage.*
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store

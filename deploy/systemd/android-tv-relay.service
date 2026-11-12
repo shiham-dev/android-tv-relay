@@ -1,0 +1,43 @@
+# Ubuntu / systemd unit for android-tv-relay.
+#
+# Install:
+#   sudo useradd --system --no-create-home --shell /usr/sbin/nologin tvrelay
+#   sudo install -m 0755 android-tv-relay /usr/local/bin/android-tv-relay
+#   sudo install -d -o tvrelay -g tvrelay /var/lib/android-tv-relay
+#   sudo install -m 0644 android-tv-relay.service /etc/systemd/system/
+#   sudo install -m 0640 -o tvrelay -g tvrelay config.json /etc/android-tv-relay.json
+#   sudo systemctl daemon-reload && sudo systemctl enable --now android-tv-relay
+#
+# The first time it connects, approve the "Allow debugging" prompt on each TV.
+
+[Unit]
+Description=Android TV ADB relay
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=tvrelay
+Group=tvrelay
+Environment=CONFIG=/etc/android-tv-relay.json
+Environment=ADB_KEY_PATH=/var/lib/android-tv-relay/adbkey
+ExecStart=/usr/local/bin/android-tv-relay
+Restart=always
+RestartSec=2
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectControlGroups=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+RestrictNamespaces=true
+RestrictSUIDSGID=true
+ReadWritePaths=/var/lib/android-tv-relay
+StateDirectory=android-tv-relay
+
+[Install]
+WantedBy=multi-user.target

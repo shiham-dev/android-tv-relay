@@ -1,0 +1,12 @@
+.git
+.github
+*.md
+!README.md
+dist
+bin
+data
+adbkey
+adbkey.pub
+config.json
+config.local.json
+deploy
