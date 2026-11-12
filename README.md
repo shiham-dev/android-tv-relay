@@ -24,7 +24,9 @@ single ~6 MB static binary or a distroless container.
 
 ## Features
 
-- Power on/off (wake/sleep), discrete HDMI 1–4, and arbitrary Android key codes.
+- **Built-in touchscreen web UI** at `/` — power, HDMI 1–4, and volume on big
+  touch targets; works on a wall tablet, phone, or a Crestron panel's web view.
+- Power on/off (wake/sleep), discrete HDMI 1–4, volume up/down/mute, and arbitrary Android key codes.
 - Multiple TVs from one instance, addressed by name.
 - Pure standard library: `crypto/rsa` + `math/big` implement the ADB auth; no CGO.
 - Persistent ADB key so the TV's "Allow debugging" prompt appears only once.
@@ -51,7 +53,8 @@ go build -o android-tv-relay ./cmd/android-tv-relay
 TVS="living=192.168.1.50" ./android-tv-relay
 ```
 
-Then:
+Then open the **touchscreen UI** at <http://localhost:8080/> (power, HDMI, and
+volume buttons), or drive it from the API:
 
 ```bash
 curl -X POST http://localhost:8080/api/tv/living/power/on

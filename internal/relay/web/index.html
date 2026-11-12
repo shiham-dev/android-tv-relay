@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14">
+<title>TV Control</title>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #151b23;
+    --panel-2: #1c2530;
+    --line: #273140;
+    --text: #e8edf3;
+    --muted: #8a97a6;
+    --accent: #3b82f6;
+    --accent-press: #2563eb;
+    --on: #16a34a;
+    --on-press: #15803d;
+    --off: #dc2626;
+    --off-press: #b91c1c;
+    --ok: #16a34a;
+    --err: #dc2626;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; flex-direction: column;
+    min-height: 100dvh;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    gap: 16px;
+    user-select: none;
+  }
+  header { display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: .2px; }
+  header .sub { color: var(--muted); font-size: 13px; }
+  select {
+    margin-left: auto; background: var(--panel-2); color: var(--text);
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font-size: 15px;
+  }
+  .wrap { flex: 1; display: flex; flex-direction: column; gap: 16px; max-width: 680px; width: 100%; margin: 0 auto; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .card h2 { margin: 0 0 12px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+  .grid { display: grid; gap: 12px; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  button.btn {
+    appearance: none; border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+    border-radius: 14px; padding: 20px 12px; font-size: 17px; font-weight: 600;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    cursor: pointer; transition: transform .05s ease, background .1s ease, border-color .1s ease;
+    min-height: 72px;
+  }
+  button.btn .ico { font-size: 22px; line-height: 1; }
+  button.btn:active { transform: scale(.97); }
+  button.btn:disabled { opacity: .5; }
+  .on { background: var(--on); border-color: transparent; }
+  .on:active { background: var(--on-press); }
+  .off { background: var(--off); border-color: transparent; }
+  .off:active { background: var(--off-press); }
+  .accent.sel { background: var(--accent); border-color: transparent; }
+  .big { min-height: 88px; font-size: 19px; }
+  #toast {
+    position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
+    background: #0f1620; border: 1px solid var(--line); color: var(--text);
+    padding: 12px 18px; border-radius: 12px; font-size: 15px; font-weight: 600;
+    opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; max-width: 90vw;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast.ok { border-color: var(--ok); }
+  #toast.err { border-color: var(--err); }
+  footer { text-align: center; color: var(--muted); font-size: 12px; }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+  <header>
+    <h1>TV Control</h1>
+    <select id="tv" aria-label="Select TV"></select>
+  </header>
+
+  <div class="wrap">
+    <section class="card">
+      <h2>Power</h2>
+      <div class="grid g2">
+        <button class="btn on big" data-cmd="on"><span class="ico">⏻</span>On</button>
+        <button class="btn off big" data-cmd="off"><span class="ico">⏼</span>Off</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Input</h2>
+      <div class="grid g4" id="inputs">
+        <button class="btn accent" data-cmd="hdmi1"><span class="ico">🔌</span>HDMI 1</button>
+        <button class="btn accent" data-cmd="hdmi2"><span class="ico">🔌</span>HDMI 2</button>
+        <button class="btn accent" data-cmd="hdmi3"><span class="ico">🔌</span>HDMI 3</button>
+        <button class="btn accent" data-cmd="hdmi4"><span class="ico">🔌</span>HDMI 4</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Volume</h2>
+      <div class="grid g3">
+        <button class="btn" data-cmd="voldown"><span class="ico">🔉</span>Vol −</button>
+        <button class="btn" data-cmd="mute"><span class="ico">🔇</span>Mute</button>
+        <button class="btn" data-cmd="volup"><span class="ico">🔊</span>Vol +</button>
+      </div>
+    </section>
+  </div>
+
+  <footer>android-tv-relay · <a href="https://github.com/shiham-dev/android-tv-relay">source</a></footer>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+  var tvSel = document.getElementById("tv");
+  var toastEl = document.getElementById("toast");
+  var toastTimer;
+
+  function toast(msg, kind) {
+    toastEl.textContent = msg;
+    toastEl.className = "show " + (kind || "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.className = ""; }, 1800);
+  }
+
+  function currentTV() { return tvSel.value || ""; }
+
+  async function loadTVs() {
+    try {
+      var res = await fetch("api/tvs");
+      var data = await res.json();
+      var tvs = (data && data.tvs) || [];
+      tvSel.innerHTML = "";
+      if (!tvs.length) { tvSel.style.display = "none"; return; }
+      tvs.forEach(function (name) {
+        var o = document.createElement("option");
+        o.value = name; o.textContent = name;
+        tvSel.appendChild(o);
+      });
+      if (tvs.length < 2) tvSel.style.display = "none";
+    } catch (e) {
+      tvSel.style.display = "none";
+    }
+  }
+
+  async function send(cmd, btn) {
+    if (btn) btn.disabled = true;
+    var tv = currentTV();
+    var path = tv ? "api/tv/" + encodeURIComponent(tv) + "/cmd/" + cmd : "api/cmd/" + cmd;
+    try {
+      var res = await fetch(path, { method: "POST" });
+      var body = await res.json().catch(function () { return {}; });
+      if (res.ok && body.ok) {
+        toast(label(cmd) + " ✓", "ok");
+      } else {
+        toast((body.error || ("HTTP " + res.status)), "err");
+      }
+    } catch (e) {
+      toast("Network error", "err");
+    } finally {
+      if (btn) setTimeout(function () { btn.disabled = false; }, 250);
+    }
+  }
+
+  function label(cmd) {
+    var m = { on: "Power On", off: "Power Off", mute: "Mute",
+      volup: "Volume Up", voldown: "Volume Down",
+      hdmi1: "HDMI 1", hdmi2: "HDMI 2", hdmi3: "HDMI 3", hdmi4: "HDMI 4" };
+    return m[cmd] || cmd;
+  }
+
+  document.querySelectorAll("button.btn").forEach(function (btn) {
+    btn.addEventListener("click", function () { send(btn.getAttribute("data-cmd"), btn); });
+  });
+
+  loadTVs();
+})();
+</script>
+</body>
+</html>

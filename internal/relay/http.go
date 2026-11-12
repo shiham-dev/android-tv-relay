@@ -52,6 +52,10 @@ func (m *Manager) HTTPHandler() http.Handler {
 		m.run(w, "", r.PathValue("command"))
 	})
 
+	// Touchscreen web UI at the site root (least-specific pattern; the API and
+	// health routes above take precedence).
+	mux.Handle("GET /", webHandler())
+
 	return logRequests(mux)
 }
 
